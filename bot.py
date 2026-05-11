@@ -1,6 +1,8 @@
 # Moving Average Crossover Bot
 
-stock = "AAPL"
+stocks = ["AAPL", "MSFT", "GOOGL", "TSLA", "NVDA"]
 
 print("Moving Average Crossover Bot")
-print(f"Tracking: {stock}")
+print("Stocks to analyze:")
+for stock in stocks:
+    print(f"  {stock}")
