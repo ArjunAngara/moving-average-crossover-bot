@@ -1,8 +1,10 @@
 # Moving Average Crossover Bot
 
-stocks = ["AAPL", "MSFT", "GOOGL", "TSLA", "NVDA"]
+import yfinance as yf
 
-print("Moving Average Crossover Bot")
-print("Stocks to analyze:")
-for stock in stocks:
-    print(f"  {stock}")
+stock = "AAPL"
+
+print(f"Fetching data for {stock}...")
+data = yf.download(stock, period="1y", interval="1d", progress=False)
+
+print(data.tail())
