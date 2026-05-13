@@ -7,4 +7,6 @@ stock = "AAPL"
 print(f"Fetching data for {stock}...")
 data = yf.download(stock, period="1y", interval="1d", progress=False)
 
-print(data.tail())
+close = data["Close"]
+print(f"Got {len(close)} days of price data")
+print(f"Latest price: ${round(float(close.iloc[-1]), 2)}")
