@@ -13,5 +13,10 @@ close = data["Close"]
 # calculate the 50 day moving average
 ma50 = close.rolling(window=50).mean()
 
-print("50-day moving average (last 5 days):")
+# calculate the 200 day moving average
+ma200 = close.rolling(window=200).mean()
+
+print("50-day MA (last 5 days):")
 print(ma50.tail())
+print("\n200-day MA (last 5 days):")
+print(ma200.tail())
