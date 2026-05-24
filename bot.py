@@ -14,11 +14,16 @@ close = data["Close"]
 ma50 = close.rolling(window=50).mean()
 ma200 = close.rolling(window=200).mean()
 
-# loop through all days and find crossover points
-print("Looking for crossover signals...")
+signals = []
 
+# loop through all days and store crossover signals in a list
 for i in range(1, len(close)):
-    if ma50.iloc[i] > ma200.iloc[i] and ma50.iloc[i-1] <= ma200.iloc[i-1]:
-        print(f"BUY signal on {close.index[i].date()} — 50MA crossed above 200MA")
-    elif ma50.iloc[i] < ma200.iloc[i] and ma50.iloc[i-1] >= ma200.iloc[i-1]:
-        print(f"SELL signal on {close.index[i].date()} — 50MA crossed below 200MA")
+   if ma50.iloc[i] > ma200.iloc[i] and ma50.iloc[i-1] <= ma200.iloc[i-1]:
+       signals.append({"Date": close.index[i].date(), "Signal": "BUY", "Price": round(float(close.iloc[i]), 2)})
+   elif ma50.iloc[i] < ma200.iloc[i] and ma50.iloc[i-1] >= ma200.iloc[i-1]:
+       signals.append({"Date": close.index[i].date(), "Signal": "SELL", "Price": round(float(close.iloc[i]), 2)})
+
+print(f"Found {len(signals)} signals")
+for s in signals:
+   print(f"  {s['Date']} — {s['Signal']} at ${s['Price']}")
+
