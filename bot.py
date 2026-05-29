@@ -22,7 +22,20 @@ for i in range(1, len(close)):
     elif ma50.iloc[i] < ma200.iloc[i] and ma50.iloc[i-1] >= ma200.iloc[i-1]:
         signals.append({"Date": close.index[i].date(), "Signal": "SELL", "Price": round(float(close.iloc[i]), 2)})
 
-# convert signals list into a dataframe
 df = pd.DataFrame(signals)
-print(df)
 
+# calculate profit or loss for each buy/sell pair
+print("Calculating P&L...")
+total_pnl = 0
+buy_price = None
+
+for _, row in df.iterrows():
+    if row["Signal"] == "BUY":
+        buy_price = row["Price"]
+    elif row["Signal"] == "SELL" and buy_price is not None:
+        pnl = round(row["Price"] - buy_price, 2)
+        total_pnl += pnl
+        print(f"  Bought at ${buy_price} — Sold at ${row['Price']} — P&L: ${pnl}")
+        buy_price = None
+
+print(f"\nTotal P&L: ${round(total_pnl, 2)}")
