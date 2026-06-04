@@ -24,8 +24,6 @@ for i in range(1, len(close)):
 
 df = pd.DataFrame(signals)
 
-# calculate profit or loss for each buy/sell pair
-print("Calculating P&L...")
 total_pnl = 0
 buy_price = None
 
@@ -39,3 +37,8 @@ for _, row in df.iterrows():
         buy_price = None
 
 print(f"\nTotal P&L: ${round(total_pnl, 2)}")
+
+# calculate win rate
+wins = sum(1 for _, row in df.iterrows() if row["Signal"] == "SELL" and buy_price is None)
+total_trades = len([s for s in signals if s["Signal"] == "SELL"])
+print(f"Total trades: {total_trades}")
