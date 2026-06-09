@@ -26,6 +26,7 @@ df = pd.DataFrame(signals)
 
 total_pnl = 0
 buy_price = None
+trades = []
 
 for _, row in df.iterrows():
     if row["Signal"] == "BUY":
@@ -33,12 +34,16 @@ for _, row in df.iterrows():
     elif row["Signal"] == "SELL" and buy_price is not None:
         pnl = round(row["Price"] - buy_price, 2)
         total_pnl += pnl
+        trades.append(pnl)
         print(f"  Bought at ${buy_price} — Sold at ${row['Price']} — P&L: ${pnl}")
         buy_price = None
 
-print(f"\nTotal P&L: ${round(total_pnl, 2)}")
-
 # calculate win rate
-wins = sum(1 for _, row in df.iterrows() if row["Signal"] == "SELL" and buy_price is None)
-total_trades = len([s for s in signals if s["Signal"] == "SELL"])
-print(f"Total trades: {total_trades}")
+wins = len([t for t in trades if t > 0])
+losses = len([t for t in trades if t <= 0])
+win_rate = round((wins / len(trades)) * 100, 2) if trades else 0
+
+print(f"\nTotal P&L: ${round(total_pnl, 2)}")
+print(f"Total Trades: {len(trades)}")
+print(f"Wins: {wins} — Losses: {losses}")
+print(f"Win Rate: {win_rate}%")
