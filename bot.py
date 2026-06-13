@@ -35,15 +35,19 @@ for _, row in df.iterrows():
         pnl = round(row["Price"] - buy_price, 2)
         total_pnl += pnl
         trades.append(pnl)
-        print(f"  Bought at ${buy_price} — Sold at ${row['Price']} — P&L: ${pnl}")
         buy_price = None
 
-# calculate win rate
 wins = len([t for t in trades if t > 0])
 losses = len([t for t in trades if t <= 0])
 win_rate = round((wins / len(trades)) * 100, 2) if trades else 0
 
-print(f"\nTotal P&L: ${round(total_pnl, 2)}")
+print(f"Total P&L: ${round(total_pnl, 2)}")
 print(f"Total Trades: {len(trades)}")
 print(f"Wins: {wins} — Losses: {losses}")
 print(f"Win Rate: {win_rate}%")
+
+# calculate average profit and average loss
+avg_win = round(sum(t for t in trades if t > 0) / wins, 2) if wins > 0 else 0
+avg_loss = round(sum(t for t in trades if t <= 0) / losses, 2) if losses > 0 else 0
+print(f"Average Win: ${avg_win}")
+print(f"Average Loss: ${avg_loss}")
