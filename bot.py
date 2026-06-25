@@ -44,7 +44,6 @@ avg_win = round(sum(t for t in trades if t > 0) / wins, 2) if wins > 0 else 0
 avg_loss = round(sum(t for t in trades if t <= 0) / losses, 2) if losses > 0 else 0
 risk_reward = round(abs(avg_win / avg_loss), 2) if avg_loss != 0 else 0
 
-# save results to a csv file
 import os
 import datetime
 
@@ -52,12 +51,16 @@ os.makedirs("output", exist_ok=True)
 filename = datetime.datetime.now().strftime("backtest_%Y%m%d_%H%M%S.csv")
 filepath = os.path.join("output", filename)
 df.to_csv(filepath, index=False)
-print(f"Signals saved to {filepath}")
 
-print(f"\nTotal P&L: ${round(total_pnl, 2)}")
+# print final summary report
+print("=" * 40)
+print(f"BACKTEST RESULTS — {stock}")
+print("=" * 40)
 print(f"Total Trades: {len(trades)}")
 print(f"Wins: {wins} — Losses: {losses}")
 print(f"Win Rate: {win_rate}%")
 print(f"Average Win: ${avg_win}")
 print(f"Average Loss: ${avg_loss}")
 print(f"Risk/Reward Ratio: {risk_reward}")
+print(f"Total P&L: ${round(total_pnl, 2)}")
+print(f"Signals saved to {filepath}")
