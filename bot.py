@@ -1,4 +1,4 @@
-# Moving Average Crossover Bott
+# Moving Average Crossover Bot
 
 import yfinance as yf
 import pandas as pd
