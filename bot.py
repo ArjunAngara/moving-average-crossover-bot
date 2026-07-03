@@ -44,6 +44,15 @@ def calculate_pnl(df):
     return trades, round(total_pnl, 2)
 
 
+def save_csv(df, stock):
+    # save signals to a timestamped csv file
+    os.makedirs("output", exist_ok=True)
+    filename = datetime.datetime.now().strftime(f"{stock}_signals_%Y%m%d_%H%M%S.csv")
+    filepath = os.path.join("output", filename)
+    df.to_csv(filepath, index=False)
+    print(f"Signals saved to {filepath}")
+
+
 def print_summary(stock, trades, total_pnl):
     wins = len([t for t in trades if t > 0])
     losses = len([t for t in trades if t <= 0])
@@ -68,4 +77,5 @@ stock = "AAPL"
 close = get_stock_data(stock)
 df = calculate_signals(close)
 trades, total_pnl = calculate_pnl(df)
+save_csv(df, stock)
 print_summary(stock, trades, total_pnl)
