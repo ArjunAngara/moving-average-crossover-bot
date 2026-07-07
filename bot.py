@@ -1,4 +1,4 @@
-# Moving Average Crossover Bott
+# Moving Average Crossover Bot
 
 import yfinance as yf
 import pandas as pd
@@ -45,7 +45,6 @@ def calculate_pnl(df):
 
 
 def save_csv(df, stock):
-    # save signals to a timestamped csv file
     os.makedirs("output", exist_ok=True)
     filename = datetime.datetime.now().strftime(f"{stock}_signals_%Y%m%d_%H%M%S.csv")
     filepath = os.path.join("output", filename)
@@ -73,9 +72,13 @@ def print_summary(stock, trades, total_pnl):
     print(f"Total P&L: ${total_pnl}")
 
 
-stock = "AAPL"
-close = get_stock_data(stock)
-df = calculate_signals(close)
-trades, total_pnl = calculate_pnl(df)
-save_csv(df, stock)
-print_summary(stock, trades, total_pnl)
+# test the bot on multiple stocks instead of just AAPL
+stocks = ["AAPL", "MSFT", "TSLA"]
+
+for stock in stocks:
+    close = get_stock_data(stock)
+    df = calculate_signals(close)
+    trades, total_pnl = calculate_pnl(df)
+    save_csv(df, stock)
+    print_summary(stock, trades, total_pnl)
+    print()
