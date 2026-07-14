@@ -1,4 +1,4 @@
-# Moving Average Crossover Bott
+# Moving Average Crossover Bot
 
 import yfinance as yf
 import pandas as pd
@@ -72,8 +72,11 @@ def print_summary(stock, trades, total_pnl):
     print(f"Total P&L: ${total_pnl}")
 
 
-# test the bot on multiple stocks instead of just AAPL
 stocks = ["AAPL", "MSFT", "TSLA"]
+
+# track which stock had the best total pnl
+best_stock = None
+best_pnl = float("-inf")
 
 for stock in stocks:
     close = get_stock_data(stock)
@@ -82,3 +85,9 @@ for stock in stocks:
     save_csv(df, stock)
     print_summary(stock, trades, total_pnl)
     print()
+
+    if total_pnl > best_pnl:
+        best_pnl = total_pnl
+        best_stock = stock
+
+print(f"Best performing stock: {best_stock} with total P&L of ${best_pnl}")
