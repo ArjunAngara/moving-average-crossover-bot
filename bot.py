@@ -73,8 +73,6 @@ def print_summary(stock, trades, total_pnl):
 
 
 stocks = ["AAPL", "MSFT", "TSLA"]
-
-# track which stock had the best total pnl
 best_stock = None
 best_pnl = float("-inf")
 
@@ -90,4 +88,15 @@ for stock in stocks:
         best_pnl = total_pnl
         best_stock = stock
 
+# added sharpe ratio to measure risk adjusted returns
+def calculate_sharpe(trades, risk_free_rate=0.05):
+    if len(trades) < 2:
+        return 0
+    import statistics
+    avg_return = sum(trades) / len(trades)
+    std_return = statistics.stdev(trades)
+    sharpe = round((avg_return - risk_free_rate) / std_return, 2) if std_return != 0 else 0
+    return sharpe
+
+sharpe = calculate_sharpe([t for stock in stocks for t in []])
 print(f"Best performing stock: {best_stock} with total P&L of ${best_pnl}")
