@@ -4,17 +4,16 @@ import yfinance as yf
 import pandas as pd
 import os
 import datetime
+import statistics
 
 
 def get_stock_data(stock):
-    # download 2 years of daily price data
     print(f"Fetching data for {stock}...")
     data = yf.download(stock, period="2y", interval="1d", progress=False)
     return data["Close"]
 
 
 def calculate_signals(close):
-    # calculate the 50 and 200 day moving averages
     ma50 = close.rolling(window=50).mean()
     ma200 = close.rolling(window=200).mean()
 
@@ -44,6 +43,15 @@ def calculate_pnl(df):
     return trades, round(total_pnl, 2)
 
 
+def calculate_sharpe(trades, risk_free_rate=0.05):
+    # sharpe ratio measures return relative to risk taken
+    if len(trades) < 2:
+        return 0
+    avg_return = sum(trades) / len(trades)
+    std_return = statistics.stdev(trades)
+    return round((avg_return - risk_free_rate) / std_return, 2) if std_return != 0 else 0
+
+
 def save_csv(df, stock):
     os.makedirs("output", exist_ok=True)
     filename = datetime.datetime.now().strftime(f"{stock}_signals_%Y%m%d_%H%M%S.csv")
@@ -59,6 +67,7 @@ def print_summary(stock, trades, total_pnl):
     avg_win = round(sum(t for t in trades if t > 0) / wins, 2) if wins > 0 else 0
     avg_loss = round(sum(t for t in trades if t <= 0) / losses, 2) if losses > 0 else 0
     risk_reward = round(abs(avg_win / avg_loss), 2) if avg_loss != 0 else 0
+    sharpe = calculate_sharpe(trades)
 
     print("=" * 40)
     print(f"BACKTEST RESULTS — {stock}")
@@ -69,6 +78,7 @@ def print_summary(stock, trades, total_pnl):
     print(f"Average Win: ${avg_win}")
     print(f"Average Loss: ${avg_loss}")
     print(f"Risk/Reward Ratio: {risk_reward}")
+    print(f"Sharpe Ratio: {sharpe}")
     print(f"Total P&L: ${total_pnl}")
 
 
@@ -88,15 +98,4 @@ for stock in stocks:
         best_pnl = total_pnl
         best_stock = stock
 
-# added sharpe ratio to measure risk adjusted returns
-def calculate_sharpe(trades, risk_free_rate=0.05):
-    if len(trades) < 2:
-        return 0
-    import statistics
-    avg_return = sum(trades) / len(trades)
-    std_return = statistics.stdev(trades)
-    sharpe = round((avg_return - risk_free_rate) / std_return, 2) if std_return != 0 else 0
-    return sharpe
-
-sharpe = calculate_sharpe([t for stock in stocks for t in []])
 print(f"Best performing stock: {best_stock} with total P&L of ${best_pnl}")
