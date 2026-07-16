@@ -7,21 +7,23 @@ import datetime
 import statistics
 
 
-def get_stock_data(stock):
-    print(f"Fetching data for {stock}...")
-    data = yf.download(stock, period="2y", interval="1d", progress=False)
+def get_stock_data(stock, period="2y"):
+    # added period parameter so we can test different time ranges
+    print(f"Fetching {period} of data for {stock}...")
+    data = yf.download(stock, period=period, interval="1d", progress=False)
     return data["Close"]
 
 
-def calculate_signals(close):
-    ma50 = close.rolling(window=50).mean()
-    ma200 = close.rolling(window=200).mean()
+def calculate_signals(close, short_window=50, long_window=200):
+    # made moving average windows configurable instead of hardcoded
+    ma_short = close.rolling(window=short_window).mean()
+    ma_long = close.rolling(window=long_window).mean()
 
     signals = []
     for i in range(1, len(close)):
-        if ma50.iloc[i] > ma200.iloc[i] and ma50.iloc[i-1] <= ma200.iloc[i-1]:
+        if ma_short.iloc[i] > ma_long.iloc[i] and ma_short.iloc[i-1] <= ma_long.iloc[i-1]:
             signals.append({"Date": close.index[i].date(), "Signal": "BUY", "Price": round(float(close.iloc[i]), 2)})
-        elif ma50.iloc[i] < ma200.iloc[i] and ma50.iloc[i-1] >= ma200.iloc[i-1]:
+        elif ma_short.iloc[i] < ma_long.iloc[i] and ma_short.iloc[i-1] >= ma_long.iloc[i-1]:
             signals.append({"Date": close.index[i].date(), "Signal": "SELL", "Price": round(float(close.iloc[i]), 2)})
     return pd.DataFrame(signals)
 
@@ -44,7 +46,6 @@ def calculate_pnl(df):
 
 
 def calculate_sharpe(trades, risk_free_rate=0.05):
-    # sharpe ratio measures return relative to risk taken
     if len(trades) < 2:
         return 0
     avg_return = sum(trades) / len(trades)
@@ -88,7 +89,7 @@ best_pnl = float("-inf")
 
 for stock in stocks:
     close = get_stock_data(stock)
-    df = calculate_signals(close)
+    df = calculate_signals(close, short_window=50, long_window=200)
     trades, total_pnl = calculate_pnl(df)
     save_csv(df, stock)
     print_summary(stock, trades, total_pnl)
