@@ -8,14 +8,12 @@ import statistics
 
 
 def get_stock_data(stock, period="2y"):
-    # added period parameter so we can test different time ranges
     print(f"Fetching {period} of data for {stock}...")
     data = yf.download(stock, period=period, interval="1d", progress=False)
     return data["Close"]
 
 
 def calculate_signals(close, short_window=50, long_window=200):
-    # made moving average windows configurable instead of hardcoded
     ma_short = close.rolling(window=short_window).mean()
     ma_long = close.rolling(window=long_window).mean()
 
@@ -83,7 +81,8 @@ def print_summary(stock, trades, total_pnl):
     print(f"Total P&L: ${total_pnl}")
 
 
-stocks = ["AAPL", "MSFT", "TSLA"]
+# added sp500 and nvda to test on more diverse set of stocks
+stocks = ["AAPL", "MSFT", "TSLA", "NVDA", "SPY"]
 best_stock = None
 best_pnl = float("-inf")
 
