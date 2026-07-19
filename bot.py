@@ -1,4 +1,4 @@
-# Moving Average Crossover Bot
+ # Moving Average Crossover Bot
 
 import yfinance as yf
 import pandas as pd
@@ -56,7 +56,6 @@ def save_csv(df, stock):
     filename = datetime.datetime.now().strftime(f"{stock}_signals_%Y%m%d_%H%M%S.csv")
     filepath = os.path.join("output", filename)
     df.to_csv(filepath, index=False)
-    print(f"Signals saved to {filepath}")
 
 
 def print_summary(stock, trades, total_pnl):
@@ -81,10 +80,10 @@ def print_summary(stock, trades, total_pnl):
     print(f"Total P&L: ${total_pnl}")
 
 
-# added sp500 and nvda to test on more diverse set of stocks
 stocks = ["AAPL", "MSFT", "TSLA", "NVDA", "SPY"]
 best_stock = None
 best_pnl = float("-inf")
+all_results = []
 
 for stock in stocks:
     close = get_stock_data(stock)
@@ -94,8 +93,14 @@ for stock in stocks:
     print_summary(stock, trades, total_pnl)
     print()
 
+    all_results.append({"Stock": stock, "Total P&L": total_pnl, "Trades": len(trades)})
+
     if total_pnl > best_pnl:
         best_pnl = total_pnl
         best_stock = stock
 
+# save combined results summary to csv
+summary_df = pd.DataFrame(all_results)
+summary_df.to_csv("output/summary.csv", index=False)
+print(f"Summary saved to output/summary.csv")
 print(f"Best performing stock: {best_stock} with total P&L of ${best_pnl}")
