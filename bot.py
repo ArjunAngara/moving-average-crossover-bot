@@ -1,4 +1,4 @@
- # Moving Average Crossover Bot
+# Moving Average Crossover Bot
 
 import yfinance as yf
 import pandas as pd
@@ -93,13 +93,21 @@ for stock in stocks:
     print_summary(stock, trades, total_pnl)
     print()
 
-    all_results.append({"Stock": stock, "Total P&L": total_pnl, "Trades": len(trades)})
+    wins = len([t for t in trades if t > 0])
+    sharpe = calculate_sharpe(trades)
+    all_results.append({
+        "Stock": stock,
+        "Total P&L": total_pnl,
+        "Trades": len(trades),
+        "Wins": wins,
+        "Losses": len(trades) - wins,
+        "Sharpe Ratio": sharpe
+    })
 
     if total_pnl > best_pnl:
         best_pnl = total_pnl
         best_stock = stock
 
-# save combined results summary to csv
 summary_df = pd.DataFrame(all_results)
 summary_df.to_csv("output/summary.csv", index=False)
 print(f"Summary saved to output/summary.csv")
