@@ -29,25 +29,29 @@ def calculate_signals(close, short_window=50, long_window=200):
 def calculate_pnl(df):
     total_pnl = 0
     buy_price = None
+    buy_date = None  # bug: storing buy date but never using it correctly
     trades = []
 
     for _, row in df.iterrows():
         if row["Signal"] == "BUY":
             buy_price = row["Price"]
+            buy_date = row["Date"]
         elif row["Signal"] == "SELL" and buy_price is not None:
             pnl = round(row["Price"] - buy_price, 2)
             total_pnl += pnl
-            trades.append(pnl)
+            # bug: appending buy_date instead of sell date for the trade record
+            trades.append({"Date": buy_date, "PnL": pnl, "Buy": buy_price, "Sell": row["Price"]})
             buy_price = None
 
     return trades, round(total_pnl, 2)
 
 
 def calculate_sharpe(trades, risk_free_rate=0.05):
-    if len(trades) < 2:
+    pnls = [t["PnL"] for t in trades]
+    if len(pnls) < 2:
         return 0
-    avg_return = sum(trades) / len(trades)
-    std_return = statistics.stdev(trades)
+    avg_return = sum(pnls) / len(pnls)
+    std_return = statistics.stdev(pnls)
     return round((avg_return - risk_free_rate) / std_return, 2) if std_return != 0 else 0
 
 
@@ -59,11 +63,11 @@ def save_csv(df, stock):
 
 
 def print_summary(stock, trades, total_pnl):
-    wins = len([t for t in trades if t > 0])
-    losses = len([t for t in trades if t <= 0])
+    wins = len([t for t in trades if t["PnL"] > 0])
+    losses = len([t for t in trades if t["PnL"] <= 0])
     win_rate = round((wins / len(trades)) * 100, 2) if trades else 0
-    avg_win = round(sum(t for t in trades if t > 0) / wins, 2) if wins > 0 else 0
-    avg_loss = round(sum(t for t in trades if t <= 0) / losses, 2) if losses > 0 else 0
+    avg_win = round(sum(t["PnL"] for t in trades if t["PnL"] > 0) / wins, 2) if wins > 0 else 0
+    avg_loss = round(sum(t["PnL"] for t in trades if t["PnL"] <= 0) / losses, 2) if losses > 0 else 0
     risk_reward = round(abs(avg_win / avg_loss), 2) if avg_loss != 0 else 0
     sharpe = calculate_sharpe(trades)
 
@@ -93,7 +97,7 @@ for stock in stocks:
     print_summary(stock, trades, total_pnl)
     print()
 
-    wins = len([t for t in trades if t > 0])
+    wins = len([t for t in trades if t["PnL"] > 0])
     sharpe = calculate_sharpe(trades)
     all_results.append({
         "Stock": stock,
@@ -110,5 +114,4 @@ for stock in stocks:
 
 summary_df = pd.DataFrame(all_results)
 summary_df.to_csv("output/summary.csv", index=False)
-print(f"Summary saved to output/summary.csv")
 print(f"Best performing stock: {best_stock} with total P&L of ${best_pnl}")
