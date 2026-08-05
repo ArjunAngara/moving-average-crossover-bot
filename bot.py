@@ -29,7 +29,6 @@ def calculate_signals(close, short_window=50, long_window=200):
 def calculate_pnl(df):
     total_pnl = 0
     buy_price = None
-    buy_date = None  # bug: storing buy date but never using it correctly
     trades = []
 
     for _, row in df.iterrows():
@@ -39,8 +38,7 @@ def calculate_pnl(df):
         elif row["Signal"] == "SELL" and buy_price is not None:
             pnl = round(row["Price"] - buy_price, 2)
             total_pnl += pnl
-            # bug: appending buy_date instead of sell date for the trade record
-            trades.append({"Date": buy_date, "PnL": pnl, "Buy": buy_price, "Sell": row["Price"]})
+            trades.append({"Date": row["Date"], "PnL": pnl, "Buy": buy_price, "Sell": row["Price"]})
             buy_price = None
 
     return trades, round(total_pnl, 2)
@@ -114,4 +112,5 @@ for stock in stocks:
 
 summary_df = pd.DataFrame(all_results)
 summary_df.to_csv("output/summary.csv", index=False)
+print(f"Summary saved to output/summary.csv")
 print(f"Best performing stock: {best_stock} with total P&L of ${best_pnl}")
